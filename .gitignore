@@ -1,0 +1,7 @@
+bin/
+.chrome-profile-deepseek/
+deepseek-auth.json
+auth.json
+accounts/*.json
+.DS_Store
+ollama/
