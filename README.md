@@ -1,267 +1,292 @@
 # Nexus-CLI (DeepSeek Web Bridge for Golang) ⚡
 
-DeepSeek rasmiy pullik API kalitisiz, bepul veb-akkaunt (`chat.deepseek.com`) orqali har qanday ilovani DeepSeek **V3** (`deepseek-chat`) va **R1** (`deepseek-reasoner` / Thinking) modellariga ulash imkonini beruvchi yuqori tezlikdagi Golang CLI dasturi va mahalliy API proxy serveri.
-
-Ushbu dastur Node.js (`FreeDeepseekAPI-EN`) va Python (`deepseek_bridge`) loyihalarining to'liq tahlili asosida, sof Go (Golang) tilida **nol tashqi muhit bog'liqligisiz (zero runtime dependencies)** qayta yozildi.
+[English](README.md) | [Русский](README.ru.md) | [O'zbekcha](README.uz.md)
 
 ---
 
-## 🚀 Asosiy Imkoniyatlar
+A high-performance Golang CLI utility and local API proxy server that enables any application or coding agent to connect to DeepSeek **V3** (`deepseek-chat`) and **R1** (`deepseek-reasoner` / Thinking) models via a free web account (`chat.deepseek.com`), without requiring an official paid DeepSeek API key.
 
-1. **Sof Golang parallel PoW (Proof-of-Work) Solver:**
-   - DeepSeek serverlarining `DeepSeekHashV1` (Keccak-f[1600] 1..23 raundli SHA3-256) algoritmini CPU yadrolari bo'ylab parallel yechadi.
-   - 144,000 qiyinlikdagi challenge'ni atigi **~40-50 millisekundda** yechadi (hech qanday tashqi CGO, WASM yoki Python talab qilmaydi).
-2. **Interaktiv Terminal Chat (REPL):**
-   - R1 modelining fikrlash jarayonini (`reasoning_content`) real vaqt rejimida ajratilgan uslubda (italic/cyan) translatsiya qiladi.
-   - Rangli va qulay interfeys, animatsiyali yuklanish ko'rsatkichlari (spinner).
-   - Chat ichida tezkor buyruqlar: `/help`, `/new`, `/model`, `/thinking`, `/search`, `/whoami`, `/clear`, `/exit`.
-3. **Bir martalik va Quvur (Pipe) buyruqlari:**
-   - Terminaldan to'g'ridan-to'g'ri so'rov yuborish: `nexus "Kvant fizikasi nima?"`
-   - Linux/Mac quvurlari bilan ishlash: `cat main.go | nexus "Kodni tahlil qil"`
-4. **OpenAI va Anthropic Mos API Serveri (`nexus serve`):**
-   - `POST /v1/chat/completions` (OpenAI format, SSE streaming va JSON)
-   - `POST /v1/messages` (Anthropic Messages API — **Claude Code** va Anthropic SDK bilan 100% mos!)
+Rewritten from scratch in pure Go (Golang) based on in-depth analysis of Node.js (`FreeDeepseekAPI-EN`) and Python (`deepseek_bridge`) projects, featuring **zero runtime dependencies**.
+
+---
+
+## 🚀 Key Features
+
+1. **Pure Go Parallel PoW (Proof-of-Work) Solver:**
+   - Solves DeepSeek server challenges using the `DeepSeekHashV1` algorithm (Keccak-f[1600] 1..23 rounds SHA3-256) parallelized across CPU cores.
+   - Solves difficulty 144,000 challenges in just **~40–50 milliseconds** (no CGO, WASM, or Python dependencies required).
+2. **Interactive Terminal Chat (REPL):**
+   - Streams the R1 model's thought process (`reasoning_content`) in real-time with dedicated styling (italic/cyan).
+   - Polished ANSI UI with colorful prompts and animated loading spinners.
+   - Built-in slash commands: `/help`, `/new`, `/model`, `/thinking`, `/search`, `/whoami`, `/clear`, `/exit`.
+3. **One-Off & Unix Pipe Support:**
+   - Direct CLI queries: `nexus "What is quantum computing?"`
+   - Linux/macOS pipe workflows: `cat main.go | nexus "Review this code for security and performance"`
+4. **OpenAI, Anthropic & Ollama Compatible Proxy Server (`nexus serve`):**
+   - `POST /v1/chat/completions` (OpenAI format, SSE streaming, and JSON)
+   - `POST /v1/messages` (Anthropic Messages API — 100% compatible with **Claude Code** and the Anthropic SDK!)
    - `POST /v1/responses` (OpenAI Responses API)
-   - `GET /v1/models` va `GET /v1/model-capabilities`
-   - `GET /v1/sessions` va `POST /v1/sessions/reset`
-   - Open WebUI, Continue.dev, Cursor, Cline va boshqa OpenAI/Anthropic vositalariga ulanadi.
-5. **Autentifikatsiya Boshqaruvi (`nexus auth`):**
-   - Qo'lda kiritish: `nexus auth login`
-   - Chrome orqali avtomatik olish: `nexus auth chrome` (CDP orqali brauzer xotirasidagi tokenni avtomatik o'qiydi)
-   - Hisob holati: `nexus auth whoami`
-6. **Diagnostika (Doctor):**
-   - `nexus doctor` — token yaroqliligi, serverga ulanish, PoW tezligi va sessiya yaratishni bir zumda tekshirib beradi.
+   - `GET /v1/models` and `GET /v1/model-capabilities`
+   - `GET /v1/sessions` and `POST /v1/sessions/reset`
+   - Connects seamlessly with Open WebUI, Continue.dev, Cursor, Cline, and any other OpenAI/Anthropic client.
+5. **Native Ollama API Emulation 🦙:**
+   - Emulates `GET /api/tags`, `POST /api/chat`, `POST /api/generate`, `GET /api/version`.
+   - Direct plug-and-play compatibility with Open WebUI, Dify, AnythingLLM, Cursor, LlamaIndex, and official Ollama SDKs.
+6. **Structured Outputs & JSON Schema 🎯:**
+   - Enforce strict JSON output or validate against JSON Schemas across CLI, Ollama, and OpenAI endpoints.
+7. **Universal Integrations (Launcher) 🚀:**
+   - One-command launcher for Claude Code, DeepSeek Harness, Codex, OpenCode, Goose, and Aider (Nexus automatically boots the proxy in the background).
+8. **Multi-Account Pool 👥:**
+   - Rotate multiple DeepSeek accounts using Round-Robin scheduling to eliminate rate-limit roadblocks (HTTP 429).
+9. **Authentication Management (`nexus auth`):**
+   - Manual login: `nexus auth login` (extract `userToken` from browser LocalStorage)
+   - Automatic via Chrome: `nexus auth chrome` (reads session token from browser memory via CDP)
+   - Account inspection: `nexus auth whoami`
+10. **System Diagnostics (Doctor):**
+    - `nexus doctor` — instantly checks token validity, server connectivity, PoW solver performance, and session creation.
 
 ---
 
-## 📦 O'rnatish va Kompilyatsiya
+## 📦 Installation & Build
 
-Go 1.20+ o'rnatilgan bo'lishi kifoya:
+Requires Go 1.20+:
 
 ```bash
-cd "/Volumes/yojik HD/projects/nexus-cli"
+# Clone repository and navigate to directory:
+git clone https://github.com/xamrayev/nexus-cli.git
+cd nexus-cli
 
-# Binar faylni yaratish:
+# Build the executable binary:
 go build -o bin/nexus .
 
-# Tizimga global o'rnatish (ixtiyoriy):
+# Install globally to system PATH (optional):
 go install .
 ```
 
 ---
 
-## 🔑 Akkauntni Bog'lash (Autentifikatsiya)
+## 🔑 Authentication (Account Linking)
 
-DeepSeek hisobingizni bog'lashning 3 xil usuli mavjud:
+There are 3 ways to connect your DeepSeek account:
 
-### 1. Interaktiv buyruq orqali:
+### 1. Interactive CLI prompt:
 ```bash
 ./bin/nexus auth login
 ```
-Sizdan `userToken` so'raladi:
-1. Brauzeringizda `https://chat.deepseek.com` saytiga kiring.
-2. `F12` (yoki Mac-da `Cmd+Option+I`) bosing.
-3. `Application` -> `Local Storage` -> `https://chat.deepseek.com` -> `userToken` qiymatini nusxalang va dasturga kiriting.
+You will be prompted for your `userToken`:
+1. Open `https://chat.deepseek.com` in your browser.
+2. Press `F12` (or `Cmd+Option+I` on macOS).
+3. Navigate to `Application` -> `Local Storage` -> `https://chat.deepseek.com` -> copy the `userToken` value and paste it into the prompt.
 
-### 2. Chrome orqali avtomatik (CDP):
+### 2. Automatic via Chrome (CDP):
 ```bash
 ./bin/nexus auth chrome
 ```
-Dastur Chrome brauzerini ochadi, siz tizimga kirganingizdan so'ng tokenni avtomatik saqlab oladi.
+This automatically launches a Chrome window. Once you log in, Nexus securely captures and stores the session token.
 
-### 3. `.env` fayl orqali:
-Loyiha ildizidagi `.env` fayliga yozing:
+### 3. Via `.env` file:
+Create a `.env` file in the project root:
 ```env
-DEEPSEEK_TOKEN=sizning_deepseek_tokeningiz
+DEEPSEEK_TOKEN=your_deepseek_token_here
 ```
 
 ---
 
-## 💡 Foydalanish Misollari
+## 💡 Usage Examples
 
-### 1. Interaktiv Chat (REPL)
+### 1. Interactive Chat (REPL)
 ```bash
 ./bin/nexus chat
 ```
-Yoki shunchaki:
+Or simply:
 ```bash
 ./bin/nexus
 ```
-Fikrlash (R1) jarayoni real vaqtda chiroyli ko'rsatiladi:
+Real-time R1 reasoning stream:
 ```text
-nexus ❯ Nega osmon moviy rangda?
+nexus ❯ Why is the sky blue?
 
-💭 Fikrlash jarayoni (Thinking):
-Foydalanuvchi osmonning nima uchun moviy ekanligini so'ramoqda...
-Reley sochilish hodisasini (Rayleigh scattering) tushuntirish kerak...
+💭 Thinking Process:
+The user is asking about the physical cause behind the color of the sky...
+Need to explain the mechanism of Rayleigh scattering of sunlight by atmospheric molecules...
 
 🤖 DeepSeek (deepseek-reasoner):
-Osmonning moviy ko'rinishiga asosiy sabab — Reley sochilishi (Rayleigh scattering) hodisasidir...
+The primary reason the sky appears blue is due to a phenomenon called Rayleigh scattering...
 ```
 
-### 2. Bir martalik so'rov (One-off prompt)
+### 2. One-off prompt
 ```bash
-./bin/nexus "O'zbekistonning diqqatga sazovor joylari haqida 3 ta fakt keltir"
+./bin/nexus "Provide 3 key facts about general relativity"
 ```
 
-### 3. Kodni tahlil qilish (Unix Pipe)
+### 3. Code analysis via Unix Pipe
 ```bash
-cat main.go | ./bin/nexus "Ushbu kodni xavfsizlik va tezlik bo'yicha tahlil qil"
+cat main.go | ./bin/nexus "Analyze this code for security vulnerabilities and performance bottlenecks"
 ```
 
-### 4. Mahalliy API Serverni ishga tushirish (Proxy)
+### 4. Running the Local API Proxy Server
 ```bash
 ./bin/nexus serve --port 9655
 ```
-Endi har qanday dasturni (Cursor, Open WebUI, Claude Code) `http://localhost:9655/v1` manziliga yo'naltirishingiz mumkin!
+You can now route any tool (Cursor, Open WebUI, Claude Code) to `http://localhost:9655/v1`!
 
-**Curl orqali OpenAI formatida so'rov:**
+**Sample cURL request in OpenAI format:**
 ```bash
 curl http://localhost:9655/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "deepseek-reasoner",
-    "messages": [{"role": "user", "content": "Salom!"}],
+    "messages": [{"role": "user", "content": "Hello!"}],
     "stream": true
   }'
 ```
 
-### 5. Native Ollama API Emulyatsiyasi 🦙
-Nexus endi to'liq Ollama API spetsifikatsiyasini qo'llab-quvvatlaydi! Open WebUI, Dify, AnythingLLM, Cursor, LlamaIndex yoki rasmiy Ollama SDKlari to'g'ridan-to'g'ri `http://localhost:9655` ga ulanadi:
+### 5. Native Ollama API Emulation 🦙
+Nexus implements the Ollama API specification. Open WebUI, Dify, AnythingLLM, Cursor, LlamaIndex, and official Ollama libraries can connect directly to `http://localhost:9655`:
 
 ```bash
-# 1. Modellar ro'yxatini olish (Ollama formati)
+# 1. Fetch available models (Ollama format)
 curl http://localhost:9655/api/tags
 
-# 2. Ollama Chat formati (NDJSON oqimi)
+# 2. Ollama Chat request (NDJSON streaming)
 curl http://localhost:9655/api/chat -d '{
   "model": "deepseek-reasoner",
-  "messages": [{"role": "user", "content": "Salom!"}],
+  "messages": [{"role": "user", "content": "Hello!"}],
   "stream": true
 }'
-
-# 3. Python Ollama SDK orqali foydalanish:
 ```
+
+**Using the official Python Ollama SDK:**
 ```python
 import ollama
 
 client = ollama.Client(host="http://localhost:9655")
 resp = client.chat(model="deepseek-reasoner", messages=[
-    {"role": "user", "content": "Go tilida sodda HTTP server kodi"}
+    {"role": "user", "content": "Write a simple HTTP server in Go"}
 ])
 print(resp["message"]["content"])
 ```
 
-### 6. Strukturalangan Natijalar (Structured Outputs & JSON Schema) 🎯
-Natijani qat'iy JSON formatida yoki ko'rsatilgan JSON Schema asosida olish:
+### 6. Structured Outputs & JSON Schema 🎯
+Enforce strict JSON output or conform to a specified schema:
 
 ```bash
-# 1. CLI orqali toza JSON olish (jq bilan quvurlash mumkin)
-./bin/nexus "Eng mashhur 3 ta dasturlash tili va ularning asosiy sohasi" --format json | jq .
+# 1. Direct JSON from CLI (pipeable to jq)
+./bin/nexus "Top 3 programming languages and their primary domains" --format json | jq .
 
-# 2. Ollama API orqali:
+# 2. Via Ollama API:
 curl http://localhost:9655/api/chat -d '{
   "model": "deepseek-reasoner",
-  "messages": [{"role": "user", "content": "3 ta meva nomini JSON ro'yxat qilib ber"}],
+  "messages": [{"role": "user", "content": "List 3 fruits in JSON"}],
   "format": "json",
   "stream": false
 }'
 
-# 3. OpenAI API orqali (response_format):
+# 3. Via OpenAI API (response_format):
 curl http://localhost:9655/v1/chat/completions -d '{
   "model": "deepseek-reasoner",
-  "messages": [{"role": "user", "content": "Telefon ma'lumotlarini JSON qilib ber"}],
+  "messages": [{"role": "user", "content": "Return device specs as JSON"}],
   "response_format": {"type": "json_object"}
 }'
 ```
 
-### 7. Universal Integratsiyalar (Launcher) 🚀
-Claude Code, DeepSeek Harness, Codex, OpenCode, Goose, Aider kabi barcha AI vositalarini bitta terminal buyrug'i bilan ishga tushirish (Nexus fon rejimida serverni avtomatik ko'taradi):
+### 7. Universal Integrations (Launcher) 🚀
+Launch coding tools and agents with a single command — Nexus automatically boots the proxy server in the background:
 
 ```bash
-# 1. Claude Code CLI (DeepSeek R1 / V3 quvvatida)
+# 1. Claude Code CLI (powered by DeepSeek R1 / V3)
 ./bin/nexus launch claude
-./bin/nexus launch claude -p "Ushbu Go kodini refaktoring qil"
+./bin/nexus launch claude -p "Refactor this Go code"
 
-# 2. Rasmiy DeepSeek Harness CLI (@deepseek-ai/dsh)
+# 2. Official DeepSeek Harness CLI (@deepseek-ai/dsh)
 ./bin/nexus launch dsh
 
-# 3. OpenAI Codex CLI (avtomatik config va responses wire API)
+# 3. OpenAI Codex CLI (auto-configured with responses wire API)
 ./bin/nexus launch codex
 
-# 4. OpenCode CLI (OPENCODE_CONFIG_CONTENT avtomatik inyeksiyasi bilan)
+# 4. OpenCode CLI (with automated config injection)
 ./bin/nexus launch opencode
 
-# 5. Block Goose AI Agent (OpenAI provayderi orqali)
+# 5. Block Goose AI Agent (via OpenAI provider)
 ./bin/nexus launch goose
 
-# 6. Aider Pair Programming CLI (DeepSeek R1 bilan)
+# 6. Aider Pair Programming CLI (with DeepSeek R1)
 ./bin/nexus launch aider
 
-# 7. ChatGPT Desktop (macOS) va mahalliy bridge
+# 7. ChatGPT Desktop (macOS) & local bridge
 ./bin/nexus launch chatgpt
 
-# 8. Ko'p akkauntlar hovuzi monitori
+# 8. Multi-Account Pool Monitor
 ./bin/nexus launch pool
 
 # 9. DeepSeek Agentic Eval & Benchmark Harness
 ./bin/nexus launch harness
 ```
 
-### 6. Ko'p Akkauntlar Hovuzi (Multi-Account Pool) 👥
-Cheklovlarga (HTTP 429) tushmaslik uchun bir nechta DeepSeek akkauntlarini navbatma-navbat (Round-Robin) ishlatish:
+### 8. Multi-Account Pool 👥
+Avoid rate limits (HTTP 429) by cycling through multiple DeepSeek accounts using Round-Robin rotation:
 
 ```bash
-# Yangi akkaunt qo'shish
+# Add a new account
 ./bin/nexus auth add acc2 --chrome
 
-# Akkauntlar ro'yxati va holati
+# List accounts and check their status
 ./bin/nexus auth list
 
-# Faol asosiy akkauntni almashtirish
+# Switch active account
 ./bin/nexus auth switch acc2
 
-# Barcha akkauntlarni tekshirish
+# Validate all accounts in the pool
 ./bin/nexus auth test
 ```
 
-### 7. Tizim diagnostikasi (Doctor)
+### 9. System Diagnostics (Doctor)
 ```bash
 ./bin/nexus doctor
 ```
 
 ---
 
-## 📁 Loyiha Tuzilishi
+## 📁 Project Structure
 
 ```text
 nexus-cli/
 ├── bin/
-│   └── nexus                     # Kompilyatsiya qilingan binar fayl
+│   └── nexus                     # Compiled binary executable
 ├── cmd/
-│   └── nexus/main.go             # CLI buyruqlari dispetcheri
+│   └── nexus/main.go             # CLI command dispatcher
 ├── pkg/
 │   ├── deepseek/
-│   │   ├── pow.go                # Sof Go parallel DeepSeekHashV1 Keccak PoW solver
-│   │   ├── pow_test.go           # PoW testlari va benchmark
-│   │   ├── stream.go             # SSE JSON patch va OpenAI stream parser
-│   │   ├── stream_test.go        # Stream testlari
-│   │   ├── auth.go               # Token, sessiya va profil boshqaruvi
-│   │   ├── chrome_auth.go        # Chrome CDP avtomatik autentifikatsiya
-│   │   ├── client.go             # DeepSeek Web API mijozi (Chat, Sessions, Auto-retry)
-│   │   └── types.go              # Model konfiguratsiyalari va tiplar
+│   │   ├── pow.go                # Pure Go parallel DeepSeekHashV1 Keccak PoW solver
+│   │   ├── pow_test.go           # PoW test suite & benchmarks
+│   │   ├── stream.go             # SSE JSON patch & OpenAI stream parser
+│   │   ├── stream_test.go        # Stream tests
+│   │   ├── auth.go               # Token, session, and profile manager
+│   │   ├── chrome_auth.go        # Automated Chrome CDP authentication
+│   │   ├── client.go             # DeepSeek Web API client (Chat, Sessions, Auto-retry)
+│   │   └── types.go              # Model configs and type definitions
 │   ├── server/
-│   │   ├── server.go             # Mahalliy HTTP proxy server (Routing, CORS, Auth)
-│   │   ├── server_test.go        # Server endpoint testlari
-│   │   ├── openai.go             # OpenAI Chat Completions API adapteri
-│   │   ├── anthropic.go          # Anthropic Messages API adapteri (Claude Code uchun)
-│   │   └── session.go            # Agent sessiyalari izolyatsiyasi va tozalash
+│   │   ├── server.go             # Local HTTP proxy server (Routing, CORS, Auth)
+│   │   ├── server_test.go        # Server endpoint unit tests
+│   │   ├── openai.go             # OpenAI Chat Completions API adapter
+│   │   ├── anthropic.go          # Anthropic Messages API adapter (for Claude Code)
+│   │   └── session.go            # Agent session isolation and cleanup
+│   ├── launcher/
+│   │   └── launcher.go           # Launchers for Claude Code, Codex, Goose, Aider, etc.
 │   └── cli/
-│       ├── terminal.go           # Ranglar, banner va animatsiyali spinner
-│       ├── repl.go               # Interaktiv terminal chat va slash buyruqlar
-│       ├── runner.go             # Bir martalik va quvurli (pipe) so'rovlar
-│       └── doctor.go             # To'liq tizim diagnostikasi
-├── main.go                       # Asosiy kirish nuqtasi
-├── go.mod                        # Go moduli
-└── README.md                     # Ushbu qo'llanma
+│       ├── terminal.go           # ANSI styling, banners, and spinners
+│       ├── repl.go               # Interactive terminal chat & slash commands
+│       ├── runner.go             # Single-prompt and Unix pipe runner
+│       └── doctor.go             # End-to-end system diagnostics
+├── main.go                       # Application entry point
+├── go.mod                        # Go module definition
+├── README.md                     # Main documentation (English)
+├── README.ru.md                  # Russian documentation (Русский)
+└── README.uz.md                  # Uzbek documentation (O'zbekcha)
 ```
+
+---
+
+## 📄 License
+
+Distributed under the MIT License.
