@@ -5,3 +5,8 @@ auth.json
 accounts/*.json
 .DS_Store
 ollama/
+.env
+
+desktop/node_modules/
+desktop/dist/
+opencode.json
